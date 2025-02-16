@@ -1,15 +1,9 @@
-// src/controllers/clients.js
-
 import {
   getAllClients,
   getClientByID,
   createClient,
 } from '../services/clients.js';
 import createHttpError from 'http-errors';
-import {
-  createProfileInKlaviyo,
-  addProfilesToList,
-} from '../services/klaviyoService.js';
 
 export const getAllClientsController = async (req, res, next) => {
   try {
@@ -55,7 +49,7 @@ export const creationClientController = async (req, res, next) => {
     );
   }
 
-  const newContact = {
+  const newClient = {
     name,
     email,
     services,
@@ -66,15 +60,11 @@ export const creationClientController = async (req, res, next) => {
 
   try {
     // Create client in MongoDB
-    const postedClient = await createClient(newContact);
-
-    // Synchronize client with Klaviyo
-    const profileId = await createProfileInKlaviyo(newContact);
-    await addProfilesToList([profileId]);
+    const postedClient = await createClient(newClient);
 
     res.status(201).json({
       status: 201,
-      message: 'Successfully created a client and synchronized with Klaviyo!',
+      message: 'Successfully created a client',
       data: postedClient,
     });
   } catch (error) {

@@ -1,16 +1,14 @@
-// src/app.js
 
 import express from 'express';
-import cors from 'cors'; // Import the cors package
-import { initMongoDB } from './db/initMongoDB.js';
+import cors from 'cors';
 import clientsRoutes from './routes/clients.js';
+import subscribersRoutes from './routes/subscribers.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
 
 export const startServer = async () => {
   try {
-    await initMongoDB();
 
     app.use(cors());
 
@@ -23,8 +21,8 @@ export const startServer = async () => {
     });
 
     app.use('/clients', clientsRoutes);
+    app.use('/subscribers', subscribersRoutes);
 
-    // Error handling middleware
     app.use(errorHandler);
 
     const PORT = process.env.PORT || 3000;
