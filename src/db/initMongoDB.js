@@ -1,20 +1,21 @@
 // src/db/initMongoDB.js
-
 import mongoose from 'mongoose';
-import { env } from '../utils/env.js';
+
+import {env} from "../utils/env.js";
 
 export const initMongoDB = async () => {
     try {
-        const uri = env('MONGODB_URI');
+        const user = env('MONGODB_USER');
+        const pwd = env('MONGODB_PASSWORD');
+        const url = env('MONGODB_URI');
+        const db = env('MONGODB_DB');
 
-        await mongoose.connect(uri, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
-
-        console.log('MongoDB connection successfully established!');
-    } catch (error) {
-        console.error('Error while setting up MongoDB connection:', error);
-        throw error;
+        await mongoose.connect(
+            `mongodb+srv://${user}:${pwd}@${url}/${db}?retryWrites=true&w=majority`,
+        );
+        console.log('Mongo connection successfully established!');
+    } catch (e) {
+        console.log('Error while setting up mongo connection', e);
+        throw e;
     }
 };

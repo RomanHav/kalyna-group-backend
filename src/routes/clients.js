@@ -1,5 +1,3 @@
-// src/routes/clients.js
-
 import express from 'express';
 import {
     getAllClientsController,

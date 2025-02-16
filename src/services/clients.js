@@ -1,5 +1,3 @@
-// src/services/clients.js
-
 import { ClientsCollection } from '../db/models/clients.js';
 
 export const getAllClients = async () => {
