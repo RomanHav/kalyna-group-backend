@@ -1,5 +1,3 @@
-// src/db/models/clients.js
-
 import mongoose from 'mongoose';
 
 const clientsSchema = new mongoose.Schema({

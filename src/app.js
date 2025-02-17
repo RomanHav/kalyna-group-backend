@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import clientsRoutes from './routes/clients.js';
 import subscribersRoutes from './routes/subscribers.js';
+import postsRoutes from './routes/posts.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
@@ -22,6 +23,7 @@ export const startServer = async () => {
 
     app.use('/clients', clientsRoutes);
     app.use('/subscribers', subscribersRoutes);
+    app.use('/posts', postsRoutes);
 
     app.use(errorHandler);
 
