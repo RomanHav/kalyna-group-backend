@@ -1,5 +1,5 @@
 import createHttpError from 'http-errors';
-import {createPost, getAllPosts} from "../services/posts.js";
+import {createPost, deletePost, getAllPosts, updatePost} from "../services/posts.js";
 
 export const getAllPostsController = async (req, res, next) => {
     try {
@@ -38,5 +38,45 @@ export const creationPostController = async (req, res, next) => {
         });
     } catch (error) {
         next(error);
+    }
+};
+
+export const postDelete = async (req, res, next) => {
+    try {
+        const { postId } = req.params;
+        const deletedPost = await deletePost(postId);
+
+        res.status(200).json({ message: 'Post deleted successfully', deletedPost });
+    } catch (error) {
+        next(createHttpError(400, error.message));
+    }
+};
+
+export const patchPost = async (req, res, next) => {
+    try {
+        const { postId } = req.params;
+        const { images, description } = req.body;
+
+        const changingPost = {};
+        if (images) changingPost.images = images;
+        if (description) changingPost.description = description;
+
+        if (Object.keys(changingPost).length === 0) {
+            return next(createHttpError(400, 'No fields to update'));
+        }
+
+        const postChange = await updatePost(postId, changingPost);
+
+        if (!postChange) {
+            return next(createHttpError(404, 'Post not found'));
+        }
+
+        res.status(200).json({
+            status: 200,
+            message: 'Successfully patched a post!',
+            data: postChange.post,
+        });
+    } catch (error) {
+        next(createHttpError(500, error.message));
     }
 };
