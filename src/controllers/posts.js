@@ -16,11 +16,11 @@ export const getAllPostsController = async (req, res, next) => {
 
 export const creationPostController = async (req, res, next) => {
     try {
-        const { description } = req.body;
+        const { description, link } = req.body;
 
 
-        if (!req.files || req.files.length === 0 || !description) {
-            return next(createHttpError(400, "Images and description are required"));
+        if (!req.files || req.files.length === 0 || !description || !link) {
+            return next(createHttpError(400, "Images, description and link are required"));
         }
 
 
@@ -29,6 +29,7 @@ export const creationPostController = async (req, res, next) => {
         const newPost = {
             images: imageUrls,
             description,
+            link,
         };
 
         const postedPost = await createPost(newPost);
@@ -57,11 +58,12 @@ export const postDelete = async (req, res, next) => {
 export const patchPost = async (req, res, next) => {
     try {
         const { postId } = req.params;
-        const { images, description } = req.body;
+        const { images, description, link } = req.body;
 
         const changingPost = {};
         if (images) changingPost.images = images;
         if (description) changingPost.description = description;
+        if (link) changingPost.link = link;
 
         if (Object.keys(changingPost).length === 0) {
             return next(createHttpError(400, 'No fields to update'));
