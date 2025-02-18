@@ -1,5 +1,8 @@
 import multer from "multer";
 import path from "path";
+import {nanoid} from "nanoid";
+
+
 
 // Настраиваем хранилище
 const storage = multer.diskStorage({
@@ -8,7 +11,8 @@ const storage = multer.diskStorage({
     },
     filename: (req, file, cb) => {
         const ext = path.extname(file.originalname);
-        cb(null, Date.now() + ext);
+        cb(null, nanoid(20)+ext);
+
     },
 });
 

@@ -18,9 +18,11 @@ export const creationPostController = async (req, res, next) => {
     try {
         const { description } = req.body;
 
+
         if (!req.files || req.files.length === 0 || !description) {
             return next(createHttpError(400, "Images and description are required"));
         }
+
 
         const imageUrls = req.files.map(file => `https://kalynagroupserver.online/images/${file.filename}`);
 
@@ -79,4 +81,5 @@ export const patchPost = async (req, res, next) => {
     } catch (error) {
         next(createHttpError(500, error.message));
     }
+
 };
