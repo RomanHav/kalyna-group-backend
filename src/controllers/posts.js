@@ -15,28 +15,25 @@ export const getAllPostsController = async (req, res, next) => {
 };
 
 export const creationPostController = async (req, res, next) => {
-    const { images, description} = req.body;
-
-    if (!images || !description) {
-        return next(
-            createHttpError(
-                400,
-                'Images and description are required',
-            ),
-        );
-    }
-
-    const newPost = {
-        images,
-        description,
-    };
-
     try {
+        const { description } = req.body;
+
+        if (!req.files || req.files.length === 0 || !description) {
+            return next(createHttpError(400, "Images and description are required"));
+        }
+
+        const imageUrls = req.files.map(file => `https://kalynagroupserver.online/images/${file.filename}`);
+
+        const newPost = {
+            images: imageUrls,
+            description,
+        };
+
         const postedPost = await createPost(newPost);
 
         res.status(201).json({
             status: 201,
-            message: 'Successfully created a post',
+            message: "Successfully created a post",
             data: postedPost,
         });
     } catch (error) {
