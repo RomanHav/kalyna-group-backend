@@ -56,32 +56,42 @@ export const postDelete = async (req, res, next) => {
     }
 };
 
+
 export const patchPostController = async (req, res, next) => {
     try {
         const { postId } = req.params;
-        const { description, link } = req.body;
+        const { description, link, removedImages } = req.body;
 
+        // Найти существующий пост
         const existingPost = await PostsCollection.findById(postId);
         if (!existingPost) {
             return next(createHttpError(404, "Post not found"));
         }
 
-        const changingPost = {};
+        let updatedImages = existingPost.images;
 
-
-        if (req.files && req.files.length > 0) {
-            const newImageUrls = req.files.map(file => `https://kalynagroupserver.online/images/${file.filename}`);
-            changingPost.images = [...existingPost.images, ...newImageUrls];
+        // Удаление указанных изображений
+        if (removedImages && Array.isArray(removedImages)) {
+            updatedImages = updatedImages.filter((img) => !removedImages.includes(img));
         }
 
+        // Добавление новых загруженных изображений
+        if (req.files && req.files.length > 0) {
+            const newImageUrls = req.files.map(file => `https://kalynagroupserver.online/images/${file.filename}`);
+            updatedImages = [...updatedImages, ...newImageUrls];
+        }
+
+        const changingPost = {};
         if (description) changingPost.description = description;
         if (link) changingPost.link = link;
+        changingPost.images = updatedImages;
 
+        // Проверяем, есть ли изменения
         if (Object.keys(changingPost).length === 0) {
             return next(createHttpError(400, "No fields to update"));
         }
 
-
+        // Обновляем пост
         const updatedPost = await updatePost(postId, changingPost);
         if (!updatedPost) {
             return next(createHttpError(500, "Failed to update post"));
