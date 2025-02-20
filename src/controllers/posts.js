@@ -55,33 +55,54 @@ export const postDelete = async (req, res, next) => {
     }
 };
 
-export const patchPost = async (req, res, next) => {
+
+
+export const patchPostController = async (req, res, next) => {
     try {
         const { postId } = req.params;
-        const { images, description, link } = req.body;
+        const { description, link, removedImages } = req.body;
 
-        const changingPost = {};
-        if (images) changingPost.images = images;
-        if (description) changingPost.description = description;
-        if (link) changingPost.link = link;
-
-        if (Object.keys(changingPost).length === 0) {
-            return next(createHttpError(400, 'No fields to update'));
+        // Найти существующий пост
+        const existingPost = await PostsCollection.findById(postId);
+        if (!existingPost) {
+            return next(createHttpError(404, "Post not found"));
         }
 
-        const postChange = await updatePost(postId, changingPost);
+        let updatedImages = existingPost.images;
 
-        if (!postChange) {
-            return next(createHttpError(404, 'Post not found'));
+        // Удаление указанных изображений
+        if (removedImages && Array.isArray(removedImages)) {
+            updatedImages = updatedImages.filter((img) => !removedImages.includes(img));
+        }
+
+        // Добавление новых загруженных изображений
+        if (req.files && req.files.length > 0) {
+            const newImageUrls = req.files.map(file => `https://kalynagroupserver.online/images/${file.filename}`);
+            updatedImages = [...updatedImages, ...newImageUrls];
+        }
+
+        const changingPost = {};
+        if (description) changingPost.description = description;
+        if (link) changingPost.link = link;
+        changingPost.images = updatedImages;
+
+        // Проверяем, есть ли изменения
+        if (Object.keys(changingPost).length === 0) {
+            return next(createHttpError(400, "No fields to update"));
+        }
+
+        // Обновляем пост
+        const updatedPost = await updatePost(postId, changingPost);
+        if (!updatedPost) {
+            return next(createHttpError(500, "Failed to update post"));
         }
 
         res.status(200).json({
             status: 200,
-            message: 'Successfully patched a post!',
-            data: postChange.post,
+            message: "Successfully patched a post!",
+            data: updatedPost.post,
         });
     } catch (error) {
         next(createHttpError(500, error.message));
     }
-
 };
