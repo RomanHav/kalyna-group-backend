@@ -1,5 +1,6 @@
 import createHttpError from 'http-errors';
 import {createPost, deletePost, getAllPosts, updatePost} from "../services/posts.js";
+import {PostsCollection} from "../db/models/posts.js";
 
 export const getAllPostsController = async (req, res, next) => {
     try {
@@ -60,30 +61,36 @@ export const patchPostController = async (req, res, next) => {
         const { postId } = req.params;
         const { description, link } = req.body;
 
+        const existingPost = await PostsCollection.findById(postId);
+        if (!existingPost) {
+            return next(createHttpError(404, "Post not found"));
+        }
+
         const changingPost = {};
 
-        // Обработка загруженных изображений
+
         if (req.files && req.files.length > 0) {
-            changingPost.images = req.files.map(file => `https://kalynagroupserver.online/images/${file.filename}`);
+            const newImageUrls = req.files.map(file => `https://kalynagroupserver.online/images/${file.filename}`);
+            changingPost.images = [...existingPost.images, ...newImageUrls];
         }
 
         if (description) changingPost.description = description;
         if (link) changingPost.link = link;
 
         if (Object.keys(changingPost).length === 0) {
-            return next(createHttpError(400, 'No fields to update'));
+            return next(createHttpError(400, "No fields to update"));
         }
 
-        const postChange = await updatePost(postId, changingPost);
 
-        if (!postChange) {
-            return next(createHttpError(404, 'Post not found'));
+        const updatedPost = await updatePost(postId, changingPost);
+        if (!updatedPost) {
+            return next(createHttpError(500, "Failed to update post"));
         }
 
         res.status(200).json({
             status: 200,
-            message: 'Successfully patched a post!',
-            data: postChange.post,
+            message: "Successfully patched a post!",
+            data: updatedPost.post,
         });
     } catch (error) {
         next(createHttpError(500, error.message));
