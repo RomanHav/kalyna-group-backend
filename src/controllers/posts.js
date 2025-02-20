@@ -1,5 +1,6 @@
 import createHttpError from 'http-errors';
 import {createPost, deletePost, getAllPosts, updatePost} from "../services/posts.js";
+import {PostsCollection} from "../db/models/posts.js";
 
 export const getAllPostsController = async (req, res, next) => {
     try {
@@ -54,7 +55,6 @@ export const postDelete = async (req, res, next) => {
         next(createHttpError(400, error.message));
     }
 };
-
 
 
 export const patchPostController = async (req, res, next) => {

@@ -3,7 +3,6 @@ import path from "path";
 import {nanoid} from "nanoid";
 
 
-
 // Настраиваем хранилище
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -25,7 +24,6 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-// Ограничения размера
 const upload = multer({
     storage,
     fileFilter,
