@@ -72,7 +72,9 @@ export const patchPostController = async (req, res, next) => {
 
         // Удаление указанных изображений
         if (removedImages && Array.isArray(removedImages)) {
-            updatedImages = updatedImages.filter((img) => !removedImages.includes(img));
+            updatedImages = updatedImages.filter(img =>
+                !removedImages.some(removed => img.includes(removed))
+            );
         }
 
         // Добавление новых загруженных изображений
