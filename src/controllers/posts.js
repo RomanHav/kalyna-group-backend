@@ -55,13 +55,18 @@ export const postDelete = async (req, res, next) => {
     }
 };
 
-export const patchPost = async (req, res, next) => {
+export const patchPostController = async (req, res, next) => {
     try {
         const { postId } = req.params;
-        const { images, description, link } = req.body;
+        const { description, link } = req.body;
 
         const changingPost = {};
-        if (images) changingPost.images = images;
+
+        // Обработка загруженных изображений
+        if (req.files && req.files.length > 0) {
+            changingPost.images = req.files.map(file => `https://kalynagroupserver.online/images/${file.filename}`);
+        }
+
         if (description) changingPost.description = description;
         if (link) changingPost.link = link;
 
@@ -83,5 +88,4 @@ export const patchPost = async (req, res, next) => {
     } catch (error) {
         next(createHttpError(500, error.message));
     }
-
 };
