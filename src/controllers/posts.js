@@ -96,4 +96,3 @@ export const patchPostController = async (req, res, next) => {
         next(createHttpError(500, error.message));
     }
 };
-
