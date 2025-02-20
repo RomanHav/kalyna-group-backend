@@ -98,6 +98,10 @@ export const patchPostController = async (req, res, next) => {
         if (!updatedPost) {
             return next(createHttpError(500, "Failed to update post"));
         }
+        console.log("Removed images received:", removedImages);
+        console.log("New images:", req.files);
+        console.log("Description:", description);
+        console.log("Link:", link);
 
         res.status(200).json({
             status: 200,

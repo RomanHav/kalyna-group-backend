@@ -34,14 +34,24 @@ export const deletePost = async (postId) => {
 
 export const updatePost = async (postId, payload, options = {}) => {
     try {
+        const updateQuery = {
+            $set: { description: payload.description, link: payload.link },
+        };
+
+        if (payload.removedImages && payload.removedImages.length > 0) {
+            updateQuery.$pull = { images: { $in: payload.removedImages } };
+        }
+
+        if (payload.images && payload.images.length > 0) {
+            updateQuery.$push = { images: { $each: payload.images } };
+        }
+
         const updatedPost = await PostsCollection.findOneAndUpdate(
             { _id: postId },
-            { $set: payload },
-            {
-                new: true,
-                ...options,
-            }
+            updateQuery,
+            { new: true, ...options }
         ).lean();
+
 
         return updatedPost ? { post: updatedPost } : null;
     } catch (error) {
