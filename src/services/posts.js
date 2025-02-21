@@ -34,6 +34,19 @@ export const deletePost = async (postId) => {
 
 export const updatePost = async (postId, payload, options = {}) => {
     try {
+
+        const updateQuery = { $set: {} };
+
+        // Добавляем обновленные поля в $set
+        if (payload.description) updateQuery.$set.description = payload.description;
+        if (payload.link) updateQuery.$set.link = payload.link;
+        if (payload.images) updateQuery.$set.images = payload.images; // Добавление новых изображений
+
+        // Если есть удаленные изображения, применяем $pull
+        if (payload.removedImages && payload.removedImages.length > 0) {
+            updateQuery.$pull = { images: { $in: payload.removedImages } };
+        }
+
         const updatedPost = await PostsCollection.findOneAndUpdate(
             { _id: postId },
             { $set: payload },
