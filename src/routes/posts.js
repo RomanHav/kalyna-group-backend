@@ -15,6 +15,6 @@ router.get('/', getAllPostsController);
 router.post("/", upload.array("images", 5), creationPostController);
 
 router.delete('/:postId', postDelete);
-router.patch('/:postId', patchPostController);
+router.patch('/:postId', upload.array("images", 5), patchPostController);
 
 export default router;
