@@ -2,6 +2,7 @@ import createHttpError from 'http-errors';
 import {createPost, deletePost, getAllPosts, updatePost} from "../services/posts.js";
 import {PostsCollection} from "../db/models/posts.js";
 import fs from 'fs';
+import {fileURLToPath} from 'url';
 import path from 'path';
 
 export const getAllPostsController = async (req, res, next) => {
@@ -79,7 +80,8 @@ export const patchPostController = async (req, res, next) => {
         }
 
         let updatedImages = existingPost.images;
-
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = path.dirname(__filename);
         // Удаление изображений
         if (removedImages && Array.isArray(removedImages)) {
             updatedImages = updatedImages.filter((img) => !removedImages.includes(img));
