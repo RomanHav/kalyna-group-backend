@@ -34,16 +34,16 @@ export const deletePost = async (postId) => {
 
 export const updatePost = async (postId, payload, options = {}) => {
     try {
-        const updateQuery = {
-            $set: { description: payload.description, link: payload.link },
-        };
+        const updateQuery = { $set: {} };
 
+        // Добавляем обновленные поля в $set
+        if (payload.description) updateQuery.$set.description = payload.description;
+        if (payload.link) updateQuery.$set.link = payload.link;
+        if (payload.images) updateQuery.$set.images = payload.images; // Добавление новых изображений
+
+        // Если есть удаленные изображения, применяем $pull
         if (payload.removedImages && payload.removedImages.length > 0) {
             updateQuery.$pull = { images: { $in: payload.removedImages } };
-        }
-
-        if (payload.images && payload.images.length > 0) {
-            updateQuery.$push = { images: { $each: payload.images } };
         }
 
         const updatedPost = await PostsCollection.findOneAndUpdate(
@@ -51,7 +51,6 @@ export const updatePost = async (postId, payload, options = {}) => {
             updateQuery,
             { new: true, ...options }
         ).lean();
-
 
         return updatedPost ? { post: updatedPost } : null;
     } catch (error) {

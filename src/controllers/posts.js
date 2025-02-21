@@ -59,6 +59,14 @@ export const postDelete = async (req, res, next) => {
 
 export const patchPostController = async (req, res, next) => {
     try {
+        if (typeof req.body.removedImages === 'string') {
+            try {
+                req.body.removedImages = JSON.parse(req.body.removedImages);
+            } catch (error) {
+                console.error('Error parsing removedImages:', error);
+                req.body.removedImages = [];
+            }
+        }
         const { postId } = req.params;
         const { description, link, removedImages } = req.body;
 
