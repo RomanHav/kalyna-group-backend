@@ -1,6 +1,8 @@
 import createHttpError from 'http-errors';
 import {createPost, deletePost, getAllPosts, updatePost} from "../services/posts.js";
 import {PostsCollection} from "../db/models/posts.js";
+import fs from 'fs';
+import path from 'path';
 
 export const getAllPostsController = async (req, res, next) => {
     try {
@@ -57,12 +59,12 @@ export const postDelete = async (req, res, next) => {
 };
 
 
+
 export const patchPostController = async (req, res, next) => {
     try {
         const { postId } = req.params;
         const { description, link, removedImages } = req.body;
 
-        // Найти существующий пост
         const existingPost = await PostsCollection.findById(postId);
         if (!existingPost) {
             return next(createHttpError(404, "Post not found"));
@@ -70,11 +72,20 @@ export const patchPostController = async (req, res, next) => {
 
         let updatedImages = existingPost.images;
 
-        // Удаление указанных изображений
+        // Удаление изображений
         if (removedImages && Array.isArray(removedImages)) {
-            updatedImages = updatedImages.filter(img =>
-                !removedImages.some(removed => img.includes(removed))
-            );
+            updatedImages = updatedImages.filter((img) => !removedImages.includes(img));
+
+            // Удаляем файлы с сервера (если хранятся локально)
+            removedImages.forEach((imageUrl) => {
+                const filename = path.basename(imageUrl);
+                const filePath = path.join(__dirname, '../../public/images/', filename);
+                fs.unlink(filePath, (err) => {
+                    if (err && err.code !== 'ENOENT') {
+                        console.error(`Ошибка удаления файла: ${filename}`, err);
+                    }
+                });
+            });
         }
 
         // Добавление новых загруженных изображений
@@ -88,20 +99,14 @@ export const patchPostController = async (req, res, next) => {
         if (link) changingPost.link = link;
         changingPost.images = updatedImages;
 
-        // Проверяем, есть ли изменения
         if (Object.keys(changingPost).length === 0) {
             return next(createHttpError(400, "No fields to update"));
         }
 
-        // Обновляем пост
         const updatedPost = await updatePost(postId, changingPost);
         if (!updatedPost) {
             return next(createHttpError(500, "Failed to update post"));
         }
-        console.log("Removed images received:", removedImages);
-        console.log("New images:", req.files);
-        console.log("Description:", description);
-        console.log("Link:", link);
 
         res.status(200).json({
             status: 200,
