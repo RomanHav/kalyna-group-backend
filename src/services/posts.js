@@ -34,6 +34,7 @@ export const deletePost = async (postId) => {
 
 export const updatePost = async (postId, payload, options = {}) => {
     try {
+
         const updateQuery = { $set: {} };
 
         // Добавляем обновленные поля в $set
@@ -48,8 +49,11 @@ export const updatePost = async (postId, payload, options = {}) => {
 
         const updatedPost = await PostsCollection.findOneAndUpdate(
             { _id: postId },
-            updateQuery,
-            { new: true, ...options }
+            { $set: payload },
+            {
+                new: true,
+                ...options,
+            }
         ).lean();
 
         return updatedPost ? { post: updatedPost } : null;
