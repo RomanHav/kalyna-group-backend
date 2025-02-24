@@ -2,12 +2,10 @@ import createHttpError from 'http-errors';
 import {createPost, deletePost, getAllPosts, updatePost} from "../services/posts.js";
 import {PostsCollection} from "../db/models/posts.js";
 import fs from 'fs';
-import {fileURLToPath} from 'url';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+
 
 
 export const getAllPostsController = async (req, res, next) => {
@@ -91,7 +89,6 @@ export const patchPostController = async (req, res, next) => {
         if (removedImages && Array.isArray(removedImages)) {
             updatedImages = updatedImages.filter((img) => !removedImages.includes(img));
 
-            // Удаляем файлы с сервера (если хранятся локально)
             removedImages.forEach((imageUrl) => {
                 const filename = path.basename(imageUrl);
                 const filePath = path.join(__dirname, '../../public/images/', filename);

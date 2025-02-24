@@ -11,7 +11,13 @@ const app = express();
 export const startServer = async () => {
   try {
 
-    app.use(cors());
+    const allowedOrigin = 'https://kalynagroup.space'; // Разрешённый домен
+
+    app.use(cors({
+      origin: allowedOrigin,
+      methods: 'GET,POST,PUT,DELETE',
+      allowedHeaders: 'Content-Type,Authorization'
+    }));
 
     app.use(express.json());
     app.use(express.static('public'));
